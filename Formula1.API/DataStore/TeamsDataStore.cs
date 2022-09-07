@@ -1,5 +1,5 @@
 ﻿using Formula1.API.Models;
-using System.Net.NetworkInformation;
+using Formula1.API.Models.TeamLocation;
 
 namespace Formula1.API.DataStore
 {
@@ -13,9 +13,52 @@ namespace Formula1.API.DataStore
         {
             Teams = new List<TeamsDto>()
             {
-                new TeamsDto { Id = 1, Name = "Mercedes", Description = "Merc Racing Team" },
-                new TeamsDto { Id = 2, Name = "Red Bull", Description = "Red Bull Racing Team" },
-                new TeamsDto { Id = 3, Name = "Ferrari", Description = "Ferrari Racing Team" },
+                new TeamsDto
+                {
+                    Id = 1,
+                    Name = "Mercedes",
+                    Description = "Merc Racing Team",
+                    TeamLocations = new List<TeamLocationDto>()
+                    {
+                        new TeamLocationDto(){
+                            Id = 1,
+                            Location = "Germany",
+                            Description = "Location is in Germany"
+                        },
+                        new TeamLocationDto(){
+                            Id = 2,
+                            Location = "Germany1",
+                            Description = "Location is in Germany1" },
+                    }
+                },
+                new TeamsDto
+                {
+                    Id = 2,
+                    Name = "Red Bull",
+                    Description = "Red Bull Racing Team",
+                    TeamLocations = new List<TeamLocationDto>()
+                    {
+                        new TeamLocationDto(){
+                            Id = 3,
+                            Location = "Austria",
+                            Description = "Location is in Austria"
+                        },
+                    }
+                },
+                new TeamsDto
+                {
+                    Id = 3,
+                    Name = "Ferrari",
+                    Description = "Ferrari Racing Team",
+                    TeamLocations = new List<TeamLocationDto>()
+                    {
+                        new TeamLocationDto(){
+                            Id = 4,
+                            Location = "Ferrari",
+                            Description = "Location is in Ferrari"
+                        },
+                    }
+                }
             };
         }
     }
