@@ -31,7 +31,7 @@ namespace Formula1.API.Controllers
                 return NotFound();
             }
 
-            var teamLocation = TeamsDataStore.GetData.Teams.FirstOrDefault(c => c.Id == locationId);
+            var teamLocation = teams.TeamLocations.FirstOrDefault(t => t.Id == locationId);
 
             if (teamLocation == null)
             {
