@@ -43,7 +43,6 @@ namespace Formula1.API.Controllers
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(TeamLocationDto))]
-
         public ActionResult<TeamLocationDto> CreateTeamLocation(
             int teamId, TeamLocationCreationDto teamLocationCreationDto)
         {
@@ -69,6 +68,30 @@ namespace Formula1.API.Controllers
             team.TeamLocations.Add(newTeamLocation);
 
             return newTeamLocation;
+        }
+
+        [HttpPut("{locationId}")]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(TeamLocationDto))]
+        public ActionResult UpdateTeamLocation(
+            int teamId, int locationId, TeamLocationPutDto teamLocationPutDto)
+        {
+            var team = TeamsDataStore.GetData.Teams.FirstOrDefault(t => t.Id == teamId);
+            if (team == null)
+            {
+                return NotFound();
+            }
+
+            var teamLocationFromStore = team.TeamLocations.FirstOrDefault(t => t.Id == locationId);
+
+            if (teamLocationFromStore == null)
+            {
+                return NotFound();
+            }
+
+            teamLocationFromStore.Location = teamLocationPutDto.Location;
+            teamLocationFromStore.Description = teamLocationPutDto.Description;
+
+            return NoContent();
         }
     }
 }
