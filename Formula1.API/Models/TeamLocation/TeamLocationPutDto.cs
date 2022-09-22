@@ -2,7 +2,7 @@
 
 namespace Formula1.API.Models.TeamLocation
 {
-    public class TeamLocationPutDto
+    public class TeamLocationUpdateDto
     {
         [Required]
         [MaxLength(50)]

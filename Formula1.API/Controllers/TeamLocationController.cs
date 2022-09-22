@@ -1,5 +1,6 @@
 ﻿using Formula1.API.DataStore;
 using Formula1.API.Models.TeamLocation;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Formula1.API.Controllers
@@ -73,7 +74,7 @@ namespace Formula1.API.Controllers
         [HttpPut("{locationId}")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(TeamLocationDto))]
         public ActionResult UpdateTeamLocation(
-            int teamId, int locationId, TeamLocationPutDto teamLocationPutDto)
+            int teamId, int locationId, TeamLocationUpdateDto teamLocationPutDto)
         {
             var team = TeamsDataStore.GetData.Teams.FirstOrDefault(t => t.Id == teamId);
             if (team == null)
@@ -91,6 +92,63 @@ namespace Formula1.API.Controllers
             teamLocationFromStore.Location = teamLocationPutDto.Location;
             teamLocationFromStore.Description = teamLocationPutDto.Description;
 
+            return NoContent();
+        }
+
+        [HttpPatch("{locationId}")]
+        public ActionResult PartialUpdateTeamLocation(
+            int teamId, int locationId,
+            JsonPatchDocument<TeamLocationUpdateDto> patchDocument)
+        {
+            var team = TeamsDataStore.GetData.Teams.FirstOrDefault(t => t.Id == teamId);
+            if (team == null)
+            {
+                return NotFound();
+            }
+
+            var teamLocationFromStore = team.TeamLocations.FirstOrDefault(t => t.Id == locationId);
+
+            if (teamLocationFromStore == null)
+            {
+                return NotFound();
+            }
+
+            var teamLocationsToPatch =
+                new TeamLocationUpdateDto()
+                {
+                    Location = teamLocationFromStore.Location,
+                    Description = teamLocationFromStore.Description
+                };
+
+            patchDocument.ApplyTo(teamLocationsToPatch, ModelState);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            teamLocationFromStore.Location = teamLocationsToPatch.Location;
+            teamLocationFromStore.Description = teamLocationsToPatch.Description;
+
+            return NoContent();
+        }
+
+        [HttpDelete("{locationId}")]
+        public ActionResult DeleteTeamLocation( int teamId, int locationId)
+        {
+            var team = TeamsDataStore.GetData.Teams.FirstOrDefault(t => t.Id == teamId);
+            if (team == null)
+            {
+                return NotFound();
+            }
+
+            var teamLocationFromStore = team.TeamLocations.FirstOrDefault(t => t.Id == locationId);
+            if (teamLocationFromStore == null)
+            {
+                return NotFound();
+            }
+
+            team.TeamLocations.Remove(teamLocationFromStore);
             return NoContent();
         }
     }
