@@ -1,5 +1,6 @@
 ﻿using Formula1.API.DataStore;
 using Formula1.API.Models.TeamLocation;
+using Formula1.API.Services;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,13 +10,28 @@ namespace Formula1.API.Controllers
     [ApiController]
     public class TeamLocationController : ControllerBase
     {
+        private readonly ILogger<TeamLocationController> _logger;
+        private readonly INotificationService _notificationService;
+        private readonly TeamsDataStore _teamsDataStore;
+
+        public TeamLocationController(
+            ILogger<TeamLocationController> logger,
+            INotificationService notificationService,
+            TeamsDataStore teamsDataStore)
+        {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
+            _teamsDataStore = teamsDataStore ?? throw new ArgumentNullException(nameof(teamsDataStore));
+        }
+
         [HttpGet]
         public ActionResult<IEnumerable<TeamLocationDto>> GetTeamLocations(int teamId)
         {
-            var teams = TeamsDataStore.GetData.Teams.FirstOrDefault(t => t.Id == teamId);
+            var teams = _teamsDataStore.Teams.FirstOrDefault(t => t.Id == teamId);
 
             if (teams == null)
             {
+                _logger.LogInformation($"Team with id {teamId} wasn not found when accessing team locations");
                 return NotFound();
             }
 
@@ -25,7 +41,7 @@ namespace Formula1.API.Controllers
         [HttpGet("{locationId}")]
         public ActionResult<IEnumerable<TeamLocationDto>> GetTeamLocation(int teamId, int locationId)
         {
-            var teams = TeamsDataStore.GetData.Teams.FirstOrDefault(t => t.Id == teamId);
+            var teams = _teamsDataStore.Teams.FirstOrDefault(t => t.Id == teamId);
 
             if (teams == null)
             {
@@ -48,13 +64,13 @@ namespace Formula1.API.Controllers
             int teamId, TeamLocationCreationDto teamLocationCreationDto)
         {
 
-            var team = TeamsDataStore.GetData.Teams.FirstOrDefault(t => t.Id == teamId);
+            var team = _teamsDataStore.Teams.FirstOrDefault(t => t.Id == teamId);
             if (team == null)
             {
                 return NotFound();
             }
 
-            var maxTeamLocationsId = TeamsDataStore.GetData.Teams.SelectMany(
+            var maxTeamLocationsId = _teamsDataStore.Teams.SelectMany(
                 t => t.TeamLocations).Max(t => t.Id);
 
             // will be using automapper instead of this
@@ -76,7 +92,7 @@ namespace Formula1.API.Controllers
         public ActionResult UpdateTeamLocation(
             int teamId, int locationId, TeamLocationUpdateDto teamLocationPutDto)
         {
-            var team = TeamsDataStore.GetData.Teams.FirstOrDefault(t => t.Id == teamId);
+            var team = _teamsDataStore.Teams.FirstOrDefault(t => t.Id == teamId);
             if (team == null)
             {
                 return NotFound();
@@ -100,7 +116,7 @@ namespace Formula1.API.Controllers
             int teamId, int locationId,
             JsonPatchDocument<TeamLocationUpdateDto> patchDocument)
         {
-            var team = TeamsDataStore.GetData.Teams.FirstOrDefault(t => t.Id == teamId);
+            var team = _teamsDataStore.Teams.FirstOrDefault(t => t.Id == teamId);
             if (team == null)
             {
                 return NotFound();
@@ -136,7 +152,7 @@ namespace Formula1.API.Controllers
         [HttpDelete("{locationId}")]
         public ActionResult DeleteTeamLocation( int teamId, int locationId)
         {
-            var team = TeamsDataStore.GetData.Teams.FirstOrDefault(t => t.Id == teamId);
+            var team = _teamsDataStore.Teams.FirstOrDefault(t => t.Id == teamId);
             if (team == null)
             {
                 return NotFound();
@@ -149,6 +165,11 @@ namespace Formula1.API.Controllers
             }
 
             team.TeamLocations.Remove(teamLocationFromStore);
+
+            _notificationService.Send(
+                "Team location has been removed.",
+                    $"Team location {teamLocationFromStore.Location} with Id {teamLocationFromStore.Id}");
+
             return NoContent();
         }
     }

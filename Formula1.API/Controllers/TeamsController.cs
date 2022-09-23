@@ -8,16 +8,24 @@ namespace Formula1.API.Controllers
     [Route("api/teams")]
     public class TeamsController : Controller
     {
+        private readonly TeamsDataStore _teamsDataStore;
+
+        public TeamsController(TeamsDataStore teamsDataStore)
+        {
+            _teamsDataStore = teamsDataStore ?? throw new ArgumentNullException(nameof(teamsDataStore));
+
+        }
+
         [HttpGet]
         public ActionResult<IEnumerable<TeamsDto>> GetTeams()
         {
-            return Ok(TeamsDataStore.GetData.Teams);
+            return Ok(_teamsDataStore.Teams);
         }
 
         [HttpGet("{id}")]
         public ActionResult<TeamsDto> GetTeams(int id)
         {
-            var teamToReturn = TeamsDataStore.GetData.Teams.FirstOrDefault(t => t.Id == id);
+            var teamToReturn = _teamsDataStore.Teams.FirstOrDefault(t => t.Id == id);
 
             if (teamToReturn == null)
             {

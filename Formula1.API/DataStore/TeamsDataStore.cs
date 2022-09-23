@@ -7,8 +7,6 @@ namespace Formula1.API.DataStore
     {
         public List<TeamsDto> Teams { get; set; }
 
-        public static TeamsDataStore GetData { get; } = new TeamsDataStore();
-
         public TeamsDataStore()
         {
             Teams = new List<TeamsDto>()
