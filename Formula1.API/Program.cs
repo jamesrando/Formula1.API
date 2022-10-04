@@ -1,5 +1,7 @@
 using Formula1.API.DataStore;
+using Formula1.API.DbContexts;
 using Formula1.API.Services;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +29,8 @@ builder.Host.UseSerilog();
 // Custom Services
 builder.Services.AddTransient<INotificationService, NotificationService>();
 builder.Services.AddSingleton<TeamsDataStore>();
+builder.Services.AddDbContext<Formula1Context>(
+    dbContextOptions => dbContextOptions.UseSqlServer("Data Source=Formula1.db"));
 
 var app = builder.Build();
 
