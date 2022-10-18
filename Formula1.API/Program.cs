@@ -30,7 +30,8 @@ builder.Host.UseSerilog();
 builder.Services.AddTransient<INotificationService, NotificationService>();
 builder.Services.AddSingleton<TeamsDataStore>();
 builder.Services.AddDbContext<Formula1Context>(
-    dbContextOptions => dbContextOptions.UseSqlServer("Data Source=Formula1.db"));
+    dbContextOptions => dbContextOptions.UseSqlServer(builder.Configuration
+    .GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
